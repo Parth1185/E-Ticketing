@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin & Organizer Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #4f46e5, #9333ea);
+            padding: 10px 20px;
+            color: white;
+        }
+        .logo img {
+            height: 100px;
+            width: 300px;
+        }
+        #roleSwitcher {
+            font-size: 18px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            background-color: white;
+            color: black;
+            cursor: pointer;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #1f2937;
+            color: white;
+            padding: 20px;
+        }
+        .sidebar button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            background-color: #374151;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .sidebar button:hover {
+            background-color: #4b5563;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .event-card, .user-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 400px;
+        }
+        .event-card button, .user-card button {
+            padding: 5px 8px;
+            margin-left: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+            background-color: #007bff;
+            color: white;
+        }
+        .event-card button:hover, .user-card button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="logo.jpg" alt="Logo">
+            </a>
+        </div>
+        <h2 id="panelTitle">Admin & Organizer Panel</h2>
+        <select id="roleSwitcher">
+            <option value="admin">Admin</option>
+            <option value="organizer">Organizer</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>Dashboard</h3>
+            <button onclick="showSection('events')">Manage Events</button>
+            <button onclick="showSection('users')" id="userBtn">Manage Users</button>
+        </div>
+        <div class="content">
+            <div id="events" class="section">
+                <h2>Manage Events</h2>
+                <input type="text" id="eventName" placeholder="Event Name">
+                <input type="date" id="eventDate">
+                <button onclick="addEvent()">Add Event</button>
+                <div id="eventList">
+                    <div class="event-card">
+                        <span>Concert Night - 15th March</span>
+                        <div>
+                            <button onclick="editEvent(this)">Edit</button>
+                            <button onclick="deleteEvent(this)">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="users" class="section hidden">
+                <h2>Manage Users</h2>
+                <input type="text" id="userName" placeholder="User Name">
+                <input type="text" id="userRole" placeholder="Role (Organizer, Attendee)">
+                <button onclick="addUser()">Add User</button>
+                <div id="userList">
+                    <div class="user-card">
+                        <span>John Doe - Organizer</span>
+                        <div>
+                            <button onclick="editUser(this)">Edit</button>
+                            <button onclick="deleteUser(this)">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        document.getElementById('roleSwitcher').addEventListener('change', function() {
+            let role = this.value;
+            document.getElementById('panelTitle').textContent = role === 'admin' ? 'Admin Panel' : 'Organizer Panel';
+            document.getElementById('userBtn').style.display = role === 'admin' ? 'block' : 'none';
+            showSection('events');
+        });
+
+        document.getElementById('roleSwitcher').dispatchEvent(new Event('change'));
+
+        function addEvent() {
+            let name = document.getElementById('eventName').value;
+            let date = document.getElementById('eventDate').value;
+            if (!name || !date) return alert("Please enter event details");
+
+            let newEvent = document.createElement('div');
+            newEvent.className = 'event-card';
+            newEvent.innerHTML = `<span>${name} - ${date}</span> <div><button onclick="editEvent(this)">Edit</button> <button onclick="deleteEvent(this)">Delete</button></div>`;
+            document.getElementById('eventList').appendChild(newEvent);
+
+            document.getElementById('eventName').value = "";
+            document.getElementById('eventDate').value = "";
+        }
+
+        function editEvent(button) {
+            let eventCard = button.closest('.event-card');
+            let newName = prompt("Edit Event Name:", eventCard.textContent.split('-')[0].trim());
+            let newDate = prompt("Edit Event Date:", eventCard.textContent.split('-')[1].trim());
+            if (newName && newDate) {
+                eventCard.innerHTML = `<span>${newName} - ${newDate}</span> <div><button onclick="editEvent(this)">Edit</button> <button onclick="deleteEvent(this)">Delete</button></div>`;
+            }
+        }
+
+        function deleteEvent(button) {
+            button.closest('.event-card').remove();
+        }
+
+        function addUser() {
+            let name = document.getElementById('userName').value;
+            let role = document.getElementById('userRole').value;
+            if (!name || !role) return alert("Please enter user details");
+
+            let newUser = document.createElement('div');
+            newUser.className = 'user-card';
+            newUser.innerHTML = `<span>${name} - ${role}</span> <div><button onclick="editUser(this)">Edit</button> <button onclick="deleteUser(this)">Delete</button></div>`;
+            document.getElementById('userList').appendChild(newUser);
+
+            document.getElementById('userName').value = "";
+            document.getElementById('userRole').value = "";
+        }
+
+        function editUser(button) {
+            let userCard = button.closest('.user-card');
+            let newName = prompt("Edit User Name:", userCard.textContent.split('-')[0].trim());
+            let newRole = prompt("Edit User Role:", userCard.textContent.split('-')[1].trim());
+            if (newName && newRole) {
+                userCard.innerHTML = `<span>${newName} - ${newRole}</span> <div><button onclick="editUser(this)">Edit</button> <button onclick="deleteUser(this)">Delete</button></div>`;
+            }
+        }
+
+        function deleteUser(button) {
+            button.closest('.user-card').remove();
+        }
+    </script>
+
+</body>
+</html>
